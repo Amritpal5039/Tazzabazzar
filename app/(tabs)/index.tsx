@@ -21,11 +21,21 @@ interface Category {
   image: string;
 }
 
+interface FreshPick {
+  id: string;
+  name: string;
+  price: number;
+  unit: string;
+  image: string;
+  isNew: boolean;
+  discount?: number;
+}
+
 const categories: Category[] = [
   {
     id: 'seasonal',
     name: 'Seasonal',
-    icon: <Calendar size={24} color="#FFFFFF" strokeWidth={2} />,
+    icon: <Calendar size={20} color="#FFFFFF" strokeWidth={2} />,
     count: 15,
     color: '#F59E0B',
     image: 'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg?auto=compress&cs=tinysrgb&w=300'
@@ -33,7 +43,7 @@ const categories: Category[] = [
   {
     id: 'fruits',
     name: 'Fruits',
-    icon: <Apple size={24} color="#FFFFFF" strokeWidth={2} />,
+    icon: <Apple size={20} color="#FFFFFF" strokeWidth={2} />,
     count: 25,
     color: '#EF4444',
     image: 'https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=300'
@@ -41,7 +51,7 @@ const categories: Category[] = [
   {
     id: 'non-seasonal',
     name: 'Non-Seasonal',
-    icon: <Leaf size={24} color="#FFFFFF" strokeWidth={2} />,
+    icon: <Leaf size={20} color="#FFFFFF" strokeWidth={2} />,
     count: 20,
     color: '#22C55E',
     image: 'https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg?auto=compress&cs=tinysrgb&w=300'
@@ -49,10 +59,47 @@ const categories: Category[] = [
   {
     id: 'others',
     name: 'Others',
-    icon: <Grid3X3 size={24} color="#FFFFFF" strokeWidth={2} />,
+    icon: <Grid3X3 size={20} color="#FFFFFF" strokeWidth={2} />,
     count: 12,
     color: '#8B5CF6',
     image: 'https://images.pexels.com/photos/1435904/pexels-photo-1435904.jpeg?auto=compress&cs=tinysrgb&w=300'
+  },
+];
+
+const freshPicks: FreshPick[] = [
+  {
+    id: '1',
+    name: 'Fresh Tomatoes',
+    price: 40,
+    unit: 'kg',
+    image: 'https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=200',
+    isNew: true,
+    discount: 10,
+  },
+  {
+    id: '2',
+    name: 'Green Spinach',
+    price: 25,
+    unit: 'kg',
+    image: 'https://images.pexels.com/photos/1458671/pexels-photo-1458671.jpeg?auto=compress&cs=tinysrgb&w=200',
+    isNew: true,
+  },
+  {
+    id: '3',
+    name: 'Bell Peppers',
+    price: 80,
+    unit: 'kg',
+    image: 'https://images.pexels.com/photos/1435904/pexels-photo-1435904.jpeg?auto=compress&cs=tinysrgb&w=200',
+    isNew: false,
+    discount: 15,
+  },
+  {
+    id: '4',
+    name: 'Fresh Carrots',
+    price: 35,
+    unit: 'kg',
+    image: 'https://images.pexels.com/photos/1487511/pexels-photo-1487511.jpeg?auto=compress&cs=tinysrgb&w=200',
+    isNew: true,
   },
 ];
 
@@ -61,6 +108,10 @@ export default function HomeScreen() {
 
   const handleCategoryPress = (categoryId: string) => {
     router.push(`/category/${categoryId}`);
+  };
+
+  const handleProfilePress = () => {
+    router.push('/profile');
   };
 
   return (
@@ -76,7 +127,7 @@ export default function HomeScreen() {
             placeholderTextColor="#94A3B8"
           />
         </View>
-        <TouchableOpacity style={styles.profileButton}>
+        <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
           <User size={24} color="#22C55E" strokeWidth={2} />
         </TouchableOpacity>
       </View>
@@ -93,52 +144,90 @@ export default function HomeScreen() {
 
         <View style={styles.categoriesSection}>
           <Text style={styles.sectionTitle}>Categories</Text>
-          <View style={styles.categoriesGrid}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesScrollContainer}
+          >
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
-                style={styles.categoryCard}
+                style={styles.categoryItem}
                 onPress={() => handleCategoryPress(category.id)}
                 activeOpacity={0.8}
               >
-                <Image source={{ uri: category.image }} style={styles.categoryImage} />
-                <View style={[styles.categoryOverlay, { backgroundColor: `${category.color}CC` }]}>
-                  <View style={styles.categoryIconContainer}>
+                <View style={[styles.categoryCircle, { backgroundColor: category.color }]}>
+                  <Image source={{ uri: category.image }} style={styles.categoryBackgroundImage} />
+                  <View style={styles.categoryOverlay}>
                     {category.icon}
                   </View>
-                  <View style={styles.categoryInfo}>
-                    <Text style={styles.categoryName}>{category.name}</Text>
-                    <Text style={styles.categoryCount}>{category.count} items</Text>
+                </View>
+                <Text style={styles.categoryName}>{category.name}</Text>
+                <Text style={styles.categoryCount}>{category.count} items</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.featuredSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Fresh Picks</Text>
+            <Text style={styles.sectionSubtitle}>Latest additions & best deals</Text>
+          </View>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.featuredScrollContainer}
+          >
+            {freshPicks.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.featuredCard}>
+                <View style={styles.featuredImageContainer}>
+                  <Image source={{ uri: item.image }} style={styles.featuredImage} />
+                  {item.isNew && (
+                    <View style={styles.newBadge}>
+                      <Text style={styles.newBadgeText}>NEW</Text>
+                    </View>
+                  )}
+                  {item.discount && (
+                    <View style={styles.discountBadge}>
+                      <Text style={styles.discountBadgeText}>{item.discount}% OFF</Text>
+                    </View>
+                  )}
+                </View>
+                <View style={styles.featuredInfo}>
+                  <Text style={styles.featuredName}>{item.name}</Text>
+                  <View style={styles.priceContainer}>
+                    {item.discount ? (
+                      <>
+                        <Text style={styles.originalPrice}>₹{item.price}</Text>
+                        <Text style={styles.discountedPrice}>
+                          ₹{Math.round(item.price * (1 - item.discount / 100))}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text style={styles.featuredPrice}>₹{item.price}</Text>
+                    )}
+                    <Text style={styles.priceUnit}>/{item.unit}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-        <View style={styles.featuredSection}>
-          <Text style={styles.sectionTitle}>Fresh Picks</Text>
-          <View style={styles.featuredGrid}>
-            <TouchableOpacity style={styles.featuredCard}>
-              <Image 
-                source={{ uri: 'https://images.pexels.com/photos/1458694/pexels-photo-1458694.jpeg?auto=compress&cs=tinysrgb&w=200' }}
-                style={styles.featuredImage}
-              />
-              <View style={styles.featuredInfo}>
-                <Text style={styles.featuredName}>Fresh Tomatoes</Text>
-                <Text style={styles.featuredPrice}>₹40/kg</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.featuredCard}>
-              <Image 
-                source={{ uri: 'https://images.pexels.com/photos/1458671/pexels-photo-1458671.jpeg?auto=compress&cs=tinysrgb&w=200' }}
-                style={styles.featuredImage}
-              />
-              <View style={styles.featuredInfo}>
-                <Text style={styles.featuredName}>Green Spinach</Text>
-                <Text style={styles.featuredPrice}>₹25/kg</Text>
-              </View>
-            </TouchableOpacity>
+        <View style={styles.promotionSection}>
+          <View style={styles.promotionCard}>
+            <View style={styles.promotionContent}>
+              <Text style={styles.promotionTitle}>🎉 Special Offer</Text>
+              <Text style={styles.promotionText}>Get 20% off on your first order above ₹500</Text>
+              <TouchableOpacity style={styles.promotionButton}>
+                <Text style={styles.promotionButtonText}>Shop Now</Text>
+              </TouchableOpacity>
+            </View>
+            <Image 
+              source={{ uri: 'https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg?auto=compress&cs=tinysrgb&w=150' }}
+              style={styles.promotionImage}
+            />
           </View>
         </View>
       </ScrollView>
@@ -172,9 +261,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     marginRight: 12,
   },
   searchInput: {
@@ -184,13 +273,13 @@ const styles = StyleSheet.create({
     color: '#1E293B',
   },
   profileButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#F0FDF4',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#22C55E',
   },
   content: {
@@ -204,7 +293,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#1E293B',
     marginBottom: 4,
@@ -214,72 +303,78 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   categoriesSection: {
-    paddingHorizontal: 20,
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '600',
     color: '#1E293B',
     marginBottom: 16,
+    paddingHorizontal: 20,
   },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 16,
+  categoriesScrollContainer: {
+    paddingHorizontal: 20,
+    paddingRight: 40,
   },
-  categoryCard: {
-    width: '48%',
-    height: 120,
-    borderRadius: 16,
+  categoryItem: {
+    alignItems: 'center',
+    marginRight: 24,
+    width: 80,
+  },
+  categoryCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
     overflow: 'hidden',
     position: 'relative',
   },
-  categoryImage: {
+  categoryBackgroundImage: {
+    position: 'absolute',
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
+    opacity: 0.3,
   },
   categoryOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 16,
-    justifyContent: 'space-between',
-  },
-  categoryIconContainer: {
-    alignSelf: 'flex-start',
-  },
-  categoryInfo: {
-    alignItems: 'flex-start',
+    zIndex: 1,
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#1E293B',
+    textAlign: 'center',
     marginBottom: 2,
   },
   categoryCount: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.9,
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
   },
   featuredSection: {
-    paddingHorizontal: 20,
+    marginBottom: 32,
   },
-  featuredGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
+  sectionHeader: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  featuredScrollContainer: {
+    paddingHorizontal: 20,
+    paddingRight: 40,
   },
   featuredCard: {
-    flex: 1,
+    width: 160,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
+    marginRight: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -289,10 +384,41 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  featuredImageContainer: {
+    position: 'relative',
+  },
   featuredImage: {
     width: '100%',
-    height: 100,
+    height: 120,
     resizeMode: 'cover',
+  },
+  newBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#22C55E',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  newBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  discountBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#EF4444',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  discountBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   featuredInfo: {
     padding: 12,
@@ -301,11 +427,83 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#1E293B',
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   featuredPrice: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
     color: '#22C55E',
+  },
+  originalPrice: {
+    fontSize: 12,
+    color: '#94A3B8',
+    textDecorationLine: 'line-through',
+    marginRight: 6,
+  },
+  discountedPrice: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#22C55E',
+  },
+  priceUnit: {
+    fontSize: 14,
+    color: '#64748B',
+    marginLeft: 2,
+  },
+  promotionSection: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  promotionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  promotionContent: {
+    flex: 1,
+  },
+  promotionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  promotionText: {
+    fontSize: 14,
+    color: '#64748B',
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  promotionButton: {
+    backgroundColor: '#22C55E',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    alignSelf: 'flex-start',
+  },
+  promotionButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  promotionImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginLeft: 16,
   },
 });
