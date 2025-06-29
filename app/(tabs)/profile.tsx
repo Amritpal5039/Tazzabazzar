@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
-import { ArrowLeft, User, MapPin, Phone, Mail, CreditCard, Bell, CircleHelp as HelpCircle, LogOut, Edit, ShoppingBag, Heart } from 'lucide-react-native';
+import { ArrowLeft, User, MapPin, Phone, Mail, CreditCard, Bell, CircleHelp as HelpCircle, LogOut, CreditCard as Edit, ShoppingBag, Heart } from 'lucide-react-native';
 import { router } from 'expo-router';
 
 export default function ProfileScreen() {
